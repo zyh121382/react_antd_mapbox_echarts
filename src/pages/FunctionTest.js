@@ -3,15 +3,19 @@ import echarts from 'echarts';
 import 'echarts-gl';
 import mapboxgl from 'mapbox-gl';
 import $ from  'jquery';
+// import '../lib/bmap.min'
+// require('../lib/bmap/bmap');
+
+
 window.mapboxgl = mapboxgl;
 
 class FunctionTest extends Component{
     componentDidMount(){
         
-        // this.showEchartTest();  
-        // this.showEchartGlTest();
-        // this.showBmap();   
-        // this.showmapbox(); 
+        this.showEchartTest();  
+        this.showEchartGlTest();
+        this.showBmap();   
+        this.showmapbox(); 
     }
 
     showEchartTest = () =>{
@@ -41,9 +45,9 @@ class FunctionTest extends Component{
     };
 
     showEchartGlTest = () =>{
-        var myChart = echarts.init(document.getElementById('echartTest'));
+        var myChart = echarts.init(document.getElementById('echartGlTest'));
         var option = {
-            // 需要注意的是我们不能跟 grid 一样省略 grid3D
+            // 需要注意的是我们不能跟 grid 一样省略 grid3D
             grid3D: {},
             // 默认情况下, x, y, z 分别是从 0 到 1 的数值轴
             xAxis3D: {},
@@ -58,34 +62,44 @@ class FunctionTest extends Component{
     };
 
     showBmap = () => {
-        // 基于百度地图API和Echarts的热力图
+
         var BMap = window.BMap //取出在index.html中保存到window中的BMap对象
 
-        var dom = document.getElementById("bmapTest");
-        var bmapEchart = echarts.init(dom);
-        var app = {};
-        app.title = '热力图与百度地图扩展';
+        // 百度地图API测试
+        var map = new BMap.Map('bmapTest');
+        map.centerAndZoom(new BMap.Point(120.305456, 31.570037), 12);
+        map.enableScrollWheelZoom(true);
 
-        // var dataFlag = 0
-        // var listStr  //txt中的data数据
-        // var jsonName
-        // var jsonNameList  //存放json文件名的字符串数组
-        // var dirName  //json文件夹名
-        // var loadDataLoop  //循环函数
-        // var loadDataLoopFlag = 0  //是否在循环 默认是否 为0
-        // var dataFlagTime = 0  //循环时的循环序号
 
-        // 加载json文件，并将文件中的坐标点转换成points
-        // var loadData = function(dataPath){
-        //     $.get(dataPath, function(data){
-        //         return [].concat.apply([],data.map(function(track){
-        //             return track.map(function(seg){
-        //                 return seg.coord.concat([1]);
-        //             });
-        //         }))
-        //     })
-        // }
-        // var points = loadData('data/empty.json');
+        // 基于百度地图API和Echarts的热力图heatmap
+        
+        // 模拟数据
+        var points = [
+            [116.4226486, 40.0028658, 1],
+            [116.4226486, 40.002423400000005, 1],
+            [116.4226486, 40.001981, 1],
+            [116.4232234, 39.9829578, 1],
+            [116.4232234, 39.982515400000004, 1],
+            [116.2444606, 39.959953000000006, 1],
+            [116.3852866, 39.959953000000006, 1],
+            [116.2450354, 39.9595106, 1],
+            [116.3852866, 39.9595106, 1],
+            [116.2456102, 39.959068200000004, 1],
+            [116.3852866, 39.959068200000004, 1],
+            [116.3852866, 39.9586258, 1],
+            [116.55255340000001, 39.948008200000004, 1],
+            [116.5531282, 39.948008200000004, 1],
+            [116.553703, 39.948008200000004, 1],
+            [116.4341446, 39.940045000000005, 1],
+            [116.5399078, 39.923233800000006, 1],
+            [116.2387126, 39.895805, 1],
+            [116.2157206, 39.811749000000006, 1],
+            [116.2157206, 39.8113066, 1],
+            [116.2157206, 39.810864200000005, 1],
+            [116.2162954, 39.809537000000006, 1]
+        ];
+
+        // var bmapEchart = echarts.init(document.getElementById("bmapTest"));
 
         // 指定图表的配置项和数据	
         var option = {
@@ -99,6 +113,7 @@ class FunctionTest extends Component{
                 mapStyle: {
                     // styleJson: stylejson
                 }
+
             },
             // 视觉映射组件 滑动条的那个东西 
             visualMap: {
@@ -120,44 +135,26 @@ class FunctionTest extends Component{
                 type: 'heatmap',
                 coordinateSystem: 'bmap',
                 // 要加载的数据points
-                data: null,
+                data: points,
                 pointSize: 5,
-                blurSize: 6, 
+                blurSize: 6,
+                
                 animation: true,
             }],
-        }
-        bmapEchart.setOption(option);
-
-        var loadData = function(dataPath) {
-            $.get(dataPath, function(data) {
-
-                var points = [].concat.apply([], data.map(function(track) {
-                    return track.map( function(seg) {
-                         return seg.coord.concat([1]);
-                    });
-                  }));
-
-            });
-            console.log("loadData:"+dataPath);
-        };
-        // 初始化显示空的json
-        loadData('data/empty.json');
-
-        if (option && typeof option === "object") {
-        bmapEchart.setOption(option, true);
+  
         }
 
-        
+        // bmapEchart.setOption(option);
 
-        window.addEventListener("resize",function(){
-            bmapEchart.resize();
-        });
+        // window.addEventListener("resize",function(){
+        //     bmapEchart.resize();
+        // });
     };
 
     showmapbox = () => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
 
-        var myChart = echarts.init(document.getElementById('echartTest'));
+        var myChart = echarts.init(document.getElementById('bar3d'));
         // 模拟数据
         var data0 = [
             {name:"beijing",value:[116.368608,39.901744,100]},
@@ -270,24 +267,25 @@ class FunctionTest extends Component{
             }
             var loadDataLoop = setTimeout("dataChangeWithTime()", 1000);
         };
-        dataChangeWithTime();
+        // dataChangeWithTime();
         // 获取mapbox对象
         var mapbox = myChart.getModel().getComponent('mapbox3D').getMapbox();
         mapbox.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-        window.addEventListener("resize",function(){
-            myChart.resize();
-        });
+        // window.addEventListener("resize",function(){
+        //     myChart.resize();
+        // });
 
         
 
     };
-    
+
     render(){
         return (
             <div>
                 <div>this is a test page</div>
                 <div id="echartTest" style={{minWidth: 600, minHeight: 500}}></div>
+                <div id="echartGlTest" style={{minWidth: 600, minHeight: 500}}></div>
                 <div id="bmapTest" style={{minWidth: 600, minHeight: 500}}></div>
                 <div id="bar3d" style={{minWidth: 600, minHeight: 500}}></div>
             </div>
