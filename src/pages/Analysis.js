@@ -1,23 +1,58 @@
 import React, { Component } from 'react';
-import { Row, Col } from 'antd';
+// eslint-disable-next-line
+import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
 import 'echarts-gl';
 import mapboxgl from 'mapbox-gl';
+import $ from  'jquery';
 
 
 window.mapboxgl = mapboxgl;
 
 class Analysis extends Component{
+
+    // constructor(props){ //构造函数
+    //     super(props);
+    //     this.state = [];
+    // };
+
     componentDidMount(){
+        // this.loaddata();
         this.showmapbox();
         this.showlinebar();
         this.showjamlevel();
+        
     };
 
-    showmapbox = () => {
+    loaddata = () => {
+        // 读取本地的json，需要将json文件放到与index.html同级目录
+
+        var jsonPath = "./data/test.json";
+        // function loadjson(dataPath){
+        //     $.get(dataPath,function(data){
+        //         return data.data
+        //     })
+        // };
+
+        fetch(jsonPath)
+        .then(res => res.json())
+        .then(json => {
+            var data = json.data
+            for(var i = 0, len = data.length; i < len; i++){
+                data[i][2] *= 10000;
+            }
+            console.log('load json path:'+jsonPath);
+            var datatime = jsonPath.split('/')[jsonPath.split('/').length - 1].split('.')[0]
+            console.log('load json data time:'+datatime);
+            this.showmapbox(data,datatime);
+        })
+    };
+
+    showmapbox = (data=[],datatime="") => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
 
         var myChart = echarts.init(document.getElementById('mapbox_echartgl'));
+
         // 模拟数据
         var data0 = [
             {name:"beijing",value:[116.368608,39.901744,100]},
@@ -29,12 +64,18 @@ class Analysis extends Component{
             {name:"beijing1",value:[116.467312,39.957147,2000]},
             {name:"beijing2",value:[116.312587,40.059276,8000]},
             ]
+        var data2 = [
+            [116.339626,39.984877,6000],
+            [116.467312,39.957147,2000],
+            [116.312587,40.059276,8000],
+            [116.342587,40.059276,8000],
+            ]
         
         myChart.setOption({
             title: { 
                 text: '交通三维柱状图',
                 padding:20,//各个方向的内边距，默认是5，可以自行设置
-                subtext:"2019-12-13 14:00", //主标题的副标题文本内容，如果需要副标题就配置这一项
+                subtext: datatime, //"2019-12-13 14:00", //主标题的副标题文本内容，如果需要副标题就配置这一项
                 subtextStyle:{//副标题内容的样式
 					color:'black',//绿色
 					fontStyle:'normal',//主标题文字字体风格，默认normal，有italic(斜体),oblique(斜体)
@@ -78,21 +119,21 @@ class Analysis extends Component{
                             }
                         },
                 // 光照相关的设置
-                light: {
-                    main: {
-                        intensity: 2,
-                        shadow: true,
-                        shadowQuality: 'high'
-                    },
-                    ambient: {
-                        intensity: 0.
-                    },
-                    ambientCubemap: {
-                        texture: 'asset/canyon.hdr',
-                        exposure: 2,
-                        diffuseIntensity: 0.5
-                    }
-                },
+                // light: {
+                //     main: {
+                //         intensity: 2,
+                //         shadow: true,
+                //         shadowQuality: 'high'
+                //     },
+                //     ambient: {
+                //         intensity: 0.
+                //     },
+                //     ambientCubemap: {
+                //         texture: 'asset/canyon.hdr',
+                //         exposure: 2,
+                //         diffuseIntensity: 0.5
+                //     }
+                // },
             },
 
             series: [{
@@ -102,43 +143,19 @@ class Analysis extends Component{
                 minHeight: 1000,
                 maxHeight: 10000,
                 barSize: 0.3,
-                data: data1,
+                data: data,
                 // 图形是否不响应和触发鼠标事件，默认为 false，即响应和触发鼠标事件。
-                silent: false,
+                silent: true,
                 // label: {show:true},
                 animationEasingUpdate: 200,
             }]
         });
 
-        // var loadDataLoop
-        var dataFlagTime = 0
-        var dataChangeWithTime = function () {
-            console.log(dataFlagTime);
-            if (dataFlagTime === 0) {
-                myChart.setOption({
-                    series: [{
-                        data:data1
-                    }]
-                });
-                dataFlagTime = 1;
-            }
-            else{
-                myChart.setOption({
-                    series: [{
-                        data:data0
-                    }]
-                });
-                dataFlagTime = 0;
-            }
-            var loadDataLoop = setTimeout("dataChangeWithTime()", 1000);
-        };
-        // dataChangeWithTime();
-
-        myChart.setOption({
-            series: [{
-                data:data0
-            }]
-        });
+        // myChart.setOption({
+        //     series: [{
+        //         data:data
+        //     }]
+        // });
 
         // 获取mapbox对象
         var mapbox = myChart.getModel().getComponent('mapbox3D').getMapbox();
@@ -148,7 +165,7 @@ class Analysis extends Component{
         //     myChart.resize();
         // });
     };
-    showlinebar = () => {
+    showlinebar = (data) => {
 
         // 模拟数据
         var base = +new Date(2019, 4, 2);
@@ -171,6 +188,10 @@ class Analysis extends Component{
                 left:'center', //标题居中
                 padding:20,//各个方向的内边距，默认是5，可以自行设置
             },
+            // height:150,
+            // grid:{
+            //     top:50,
+            // },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
@@ -193,16 +214,14 @@ class Analysis extends Component{
                 }
             },
             dataZoom: [
-                {
-                    type: 'inside',
-                    start: 0,
-                    end: 10
-                }, 
-                {
+                {   
+                    type: 'slider',
+                    height: 20,
+                    // top:220,
                     start: 0,
                     end: 100,
                     handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                    handleSize: '80%',
+                    handleSize: '70%',
                     handleStyle: {
                         color: '#fff',
                         shadowBlur: 3,
@@ -224,38 +243,42 @@ class Analysis extends Component{
         myChart.setOption(option);
     };
 
-    showjamlevel = () => {
+    showjamlevel = (data) => {
         var myChart = echarts.init(document.getElementById('full_analysis'));
         var option = {
             title: {
                 text: '中关村东路拥堵指数',
                 left:'center', //标题居中
                 padding:20,//各个方向的内边距，默认是5，可以自行设置
+                // margin:0,0,20,0,
             },
-            tooltip : {
-                formatter: "{a} <br/>{b} : {c}%"
-            },
-            toolbox: {
-                feature: {
-                    // restore: {},
-                    // saveAsImage: {}
-                }
+            // tooltip : {
+            //     formatter: "{a} <br/>{b} : {c}%"
+            // },
+            grid:{
+                bottom:'10'
             },
             series: [
                 {
                     name: '拥堵指数',
                     type: 'gauge',
+                    radius: 100, //仪表盘半径
                     // 去掉多余的分段
                     splitNumber: 1,
-                    axisLine: {
+                    axisLine: { //仪表盘轴线相关配置
+                        show: true,
                         lineStyle: {
                             width: 5
                         }
                     },
-                    splitLine: {
-                        show: true
+                    axisLabel:{ //刻度标签。
+                        show: false,
                     },
-                    axisTick: {
+                    splitLine: {
+                        show: true,
+                        length:5,
+                    },
+                    axisTick: { //刻度样式
                         // 刻度长度与轴线宽度一致，达到分隔的效果
                         length: 5,
                         // 增加刻度密度
@@ -280,11 +303,29 @@ class Analysis extends Component{
     render(){
         return(
             <div>
-                <Row gutter={[16, 16]}><Col span={24}><div>交通分析</div></Col></Row>
-                <Row gutter={[16, 16]}><Col span={24}><div id="mapbox_echartgl" style={{minWidth: 400, minHeight: 400}}></div></Col></Row>
                 <Row gutter={[16, 16]}>
-                    <Col span={12}><div id="point_analysis" style={{Width: 200, minHeight: 300}}>aaa</div></Col>
-                    <Col span={12}><div id="full_analysis" style={{Width: 200, minHeight: 300}}>bbb</div></Col>
+                    <Col span={24}>
+                        <PageHeader
+                            ghost={false}
+                            onBack={() => window.history.back()}
+                            title="分析页"
+                            subTitle="交通数据分析"
+                            extra={[
+                                <Button key="1" type="primary" onClick={() => {this.loaddata()}}>数据加载</Button>,
+                                <Button key="2" type="primary">数据轮播</Button>,
+                                <Button key="3" onClick={() => {this.showmapbox()}}>数据重置</Button>,
+                            ]}
+                        />
+                    </Col>
+                </Row>
+                <Row gutter={[16, 16]}>
+                    <Col span={24}>
+                        <div id="mapbox_echartgl" style={{minWidth: 400, minHeight: 400}}></div>
+                    </Col>
+                </Row>
+                <Row gutter={[16, 16]}>
+                    <Col span={12}><div id="point_analysis" style={{Width: 200, height: 250}}></div></Col>
+                    <Col span={12}><div id="full_analysis" style={{Width: 200, minHeight: 300}}></div></Col>
                 </Row>
             </div>
         );

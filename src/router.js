@@ -4,16 +4,18 @@ import App from './App';
 import HelloWorld from './pages/HelloWorld';
 import FunctionTest from './pages/FunctionTest';
 import Analysis from './pages/Analysis';
+import MainPage from './pages/MainPage';
 
 class Routers extends Component {
     render(){
         return(
             <Router history={ browserHistory }>
                 <Route path="/" component={App}>
-                    <IndexRoute component={HelloWorld} />
+                    <IndexRoute component={MainPage} />
                     <Route path="pageHello" component={HelloWorld} />
                     <Route path="pageTest" component={FunctionTest} />
-                    <Route path="Analysis" component={Analysis} />    
+                    <Route path="Analysis" component={Analysis} />
+                    <Route path="MainPage" component={MainPage} />     
                 </Route>
             </Router> 
         )

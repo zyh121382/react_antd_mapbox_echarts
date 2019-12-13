@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import echarts from 'echarts';
 import 'echarts-gl';
 import mapboxgl from 'mapbox-gl';
-import $ from  'jquery';
+// eslint-disable-next-line
+import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
+// import $ from  'jquery';
 // import '../lib/bmap.min'
 // require('../lib/bmap/bmap');
 
@@ -283,7 +285,14 @@ class FunctionTest extends Component{
     render(){
         return (
             <div>
-                <div>this is a test page</div>
+                <div>
+                    <PageHeader
+                        ghost={false}
+                        onBack={() => window.history.back()}
+                        title="测试页"
+                        subTitle="交通数据分析图表测试"
+                    />
+                </div>
                 <div id="echartTest" style={{minWidth: 600, minHeight: 500}}></div>
                 <div id="echartGlTest" style={{minWidth: 600, minHeight: 500}}></div>
                 <div id="bmapTest" style={{minWidth: 600, minHeight: 500}}></div>

@@ -13,11 +13,11 @@ class App extends Component {
   renderSiderMenu(){
     return(
       <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-        <div style={{ height: '32px', background: 'rgba(255,255,255,.2)', margin: '16px', padding:'16px'}}>
-          Traffic Vis
+        <div style={{ height: '32px', margin: '16px', padding:'16px'}}>
+          {/* <Icon type="car" /> Traffic Vis */}
         </div>
         <Menu.Item key="1">
-          <Link to="/pageHello">
+          <Link to="/MainPage">
             <Icon type="user" />
             <span>STDAL</span>
           </Link>
@@ -39,13 +39,13 @@ class App extends Component {
       <Layout>
         <Sider width={180} style={{ minHeight: '100vh'}}>{this.renderSiderMenu()}</Sider>
         <Layout>
-          <Header style={{ background: '#fff', textAlign: 'center', padding: 0 }}>交通大数据可视化分析系统</Header>
+          <Header style={{ background: '#fff', textAlign: 'center', padding: 0, fontSize: 20 }}>交通大数据可视化分析系统</Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 560,}}>
               {this.props.children}
             </div>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>Footer Ant Design ©2018 Created by Ant UED</Footer>
+          <Footer style={{ textAlign: 'center' }}>Traffic Vis System ©2019 Created by STDAL</Footer>
         </Layout>
       </Layout>
     );
