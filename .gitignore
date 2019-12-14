@@ -24,3 +24,5 @@ yarn-error.log*
 
 # 不向git传数据
 data
+/public/data
+/src/data

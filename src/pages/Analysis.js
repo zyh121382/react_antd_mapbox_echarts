@@ -4,42 +4,52 @@ import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
 import 'echarts-gl';
 import mapboxgl from 'mapbox-gl';
-import $ from  'jquery';
+// import $ from  'jquery';
+import * as fs from 'fs';  
+import * as path from 'path'; // 导入fs库和path库
 
+/**
+ * @description
+ * path.resolve(...pathSegments: string[]): string
+ * @param 参数是一串字符串，返回一个绝对路径
+ * 比如 path.resolve(`${__dirname}`, '../../assets')
+ * __dirname是nodejs下的一个全局变量，可以获得当前文件所在目录的完整目录名
+ * 相当于从当前文件的目录 cd ../../assets/，获取这个assets目录的绝对路径
+ */
+// const dirPath = path.resolve(`${__dirname}`, '../../assets/');
 
 window.mapboxgl = mapboxgl;
 
 class Analysis extends Component{
 
-    // constructor(props){ //构造函数
-    //     super(props);
-    //     this.state = [];
-    // };
 
     componentDidMount(){
         // this.loaddata();
         this.showmapbox();
-        this.showlinebar();
-        this.showjamlevel();
+        // this.showlinebar();
+        // this.showjamlevel();
         
     };
 
-    loaddata = () => {
+    // 加载数据，并展示
+    loaddata = (jsonPath = "./data/test.json") => {
         // 读取本地的json，需要将json文件放到与index.html同级目录
 
-        var jsonPath = "./data/test.json";
-        // function loadjson(dataPath){
-        //     $.get(dataPath,function(data){
-        //         return data.data
-        //     })
-        // };
+        // jsonPath = "./data/test.json";
 
         fetch(jsonPath)
         .then(res => res.json())
         .then(json => {
             var data = json.data
             for(var i = 0, len = data.length; i < len; i++){
-                data[i][2] *= 10000;
+                // data[i][2] *= 5000;
+
+                // 数值归一化到[100,5000]区间
+                // （1）首先找到原本样本数据X的最小值Min及最大值Max
+                // （2）计算系数：k=（b-a)/(Max-Min)
+                // （3）得到归一化到[a,b]区间的数据：Y=a+k(X-Min) 或者 Y=b+k(X-Max)
+                var k = 4900/(0.9-0.1)
+                data[i][2] = 100 + k*(data[i][2]-0.1)
             }
             console.log('load json path:'+jsonPath);
             var datatime = jsonPath.split('/')[jsonPath.split('/').length - 1].split('.')[0]
@@ -48,9 +58,36 @@ class Analysis extends Component{
         })
     };
 
+    // 数据轮播
+    load_multi_data = (jsonNameFilePath = "./data/testdir/jsonName.json") => {
+        // 根据文件路径读取文件，返回一个文件列表
+        // var dirPath = jsonNameFilePath
+        jsonNameFilePath = "./data/2019_04_02_all_data-json/jsonNameList.json"
+        
+        fetch(jsonNameFilePath)
+        .then(res => res.json())
+        .then(json => {
+            var data = json.namelist
+            console.log(data)
+            for(var i = 0, len = data.length; i < len; i++){
+                var jsonPath = jsonNameFilePath.split('jsonName')[0]+data[i]
+                console.log(jsonPath)
+                // this.loaddata(jsonPath)
+                // setInterval(function (jsonPath) {
+                //     this.loaddata(jsonPath);
+                // },2000);
+            }
+            // console.log('load json path:'+jsonPath);
+            // var datatime = jsonPath.split('/')[jsonPath.split('/').length - 1].split('.')[0]
+            // console.log('load json data time:'+datatime);
+            // this.showmapbox(data,datatime);
+        })
+        
+    };
+
     showmapbox = (data=[],datatime="") => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
-
+        
         var myChart = echarts.init(document.getElementById('mapbox_echartgl'));
 
         // 模拟数据
@@ -85,18 +122,25 @@ class Analysis extends Component{
 				},
             },
             visualMap: {
-                show: false,
-                calculable: true,
-                realtime: false,
+                type: 'continuous',
+                show: true, //是否显示 visualMap-continuous 组件。如果设置为 false，不会显示，但是数据映射的功能还存在。
+                calculable: true, //是否显示拖拽用的手柄（手柄能拖拽调整选中范围）
+                realtime: true, //拖拽时，是否实时更新。
+                // hoverLink:true,
+                left:20,
+                bottom:40,
+                dimension: 2, //指定用数据的『哪个维度』，映射到视觉元素上,默认取 data 中最后一个维度。
+                
                 inRange: {
-                    color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
-                    // symbolSize: [1000,10000],
+                    // color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
+                    color:['#2c7bb6','#abd9e9','#ffffbf','#fdae61','#d7191c'],
+                    symbolSize: [10,10],
                 },
                 outOfRange: {
                     colorAlpha: 0
                 },
-                // min: 1000,
-                max: 10000,
+                min: 100,
+                max: 5000,
             },
             mapbox3D: {
                 // Mapbox 地图中心经纬度,经纬度用数组表示
@@ -139,10 +183,11 @@ class Analysis extends Component{
             series: [{
                 type: 'bar3D',
                 coordinateSystem: 'mapbox3D',
-                shading: 'lambert',
-                minHeight: 1000,
-                maxHeight: 10000,
-                barSize: 0.3,
+                shading: 'color',
+                bevelSize: 0.3,
+                minHeight: 100,
+                maxHeight: 5000,
+                barSize: 0.05,
                 data: data,
                 // 图形是否不响应和触发鼠标事件，默认为 false，即响应和触发鼠标事件。
                 silent: true,
@@ -150,17 +195,21 @@ class Analysis extends Component{
                 animationEasingUpdate: 200,
             }]
         });
-
-        // myChart.setOption({
-        //     series: [{
-        //         data:data
-        //     }]
-        // });
-
         // 获取mapbox对象
         var mapbox = myChart.getModel().getComponent('mapbox3D').getMapbox();
-        mapbox.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+        // 判断NavigationControl控件是否存在
+        if(this.nav){
+            console.log("NavigationControl exist")
+        }
+        else{
+            this.nav = new mapboxgl.NavigationControl({
+                zoomIn: true,
+                zoomOut: true,
+                compass: true,
+            });
+            mapbox.addControl(this.nav, 'top-right');
+        }
         // window.addEventListener("resize",function(){
         //     myChart.resize();
         // });
@@ -311,16 +360,16 @@ class Analysis extends Component{
                             title="分析页"
                             subTitle="交通数据分析"
                             extra={[
-                                <Button key="1" type="primary" onClick={() => {this.loaddata()}}>数据加载</Button>,
-                                <Button key="2" type="primary">数据轮播</Button>,
-                                <Button key="3" onClick={() => {this.showmapbox()}}>数据重置</Button>,
+                                <Button key="1" type="primary" onClick={() => {this.loaddata("./data/test.json")}}>测试数据</Button>,
+                                <Button key="2" type="primary" onClick={() => {this.load_multi_data()}}>数据轮播</Button>,
+                                <Button key="3" onClick={() => {this.showmapbox()}}>地图重置</Button>,
                             ]}
                         />
                     </Col>
                 </Row>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
-                        <div id="mapbox_echartgl" style={{minWidth: 400, minHeight: 400}}></div>
+                        <div id="mapbox_echartgl" style={{minWidth: 400, minHeight: 600}}></div>
                     </Col>
                 </Row>
                 <Row gutter={[16, 16]}>
