@@ -67,10 +67,10 @@ class Analysis extends Component{
     };
 
     // 数据轮播
-    load_multi_data = (jsonNameFilePath = "./data/testdir/jsonName.json") => {
+    load_multi_data = (jsonNameFilePath = "./data/data/testdir/jsonName.json") => {
         // 根据文件路径读取文件，返回一个文件列表
         // var dirPath = jsonNameFilePath
-        jsonNameFilePath = "./data/2019_04_02_all_data-json/jsonNameList.json"
+        jsonNameFilePath = "./data/data/2019_04_02_all_data-json/jsonNameList.json"
 
         var data = require('../data/jsonNameList.json').namelist;
  
@@ -190,14 +190,15 @@ class Analysis extends Component{
                 // outOfRange: {
                 //     colorAlpha: 0
                 // },
+                // color: ['red','#eac736','#2c7873'],
                 color: ['red','#eac736','green'],
                 pieces: [
                     {min: 350}, // 不指定 max，表示 max 为无限大（Infinity）。
-                    {min: 200, max: 350},
-                    {min: 100, max: 200},
-                    {min: 0, max: 100, label: '0 到 1000（自定义label）'},
+                    // {min: 200, max: 350},
+                    // {min: 100, max: 200},
+                    {min: 100, max: 350, label: '0 到 1000（自定义label）'},
                 ],
-                min: 1,
+                min: 100,
                 max: 500,
             },
             mapbox3D: {
@@ -426,7 +427,7 @@ class Analysis extends Component{
                             title="分析页"
                             subTitle="交通数据分析"
                             extra={[
-                                <Button key="1" type="primary" onClick={() => {this.loaddata("./data/2019-04-02_09-00.json")}}>测试数据</Button>,
+                                <Button key="1" type="primary" onClick={() => {this.loaddata("./data/data/2019-04-02_09-00.json")}}>测试数据</Button>,
                                 <Button key="2" type="primary" onClick={() => {this.load_multi_data()}}>数据轮播</Button>,
                                 <Button key="3" 
                                     onClick={() => {
