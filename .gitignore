@@ -23,7 +23,13 @@ yarn-debug.log*
 yarn-error.log*
 
 # 不向git传数据
-data
-/public/data/data/*
+/data
 
-/src/data/data
+/public/data/*
+# !/public/data/data/test.json
+/public/data/__pycache__
+
+!/public/data/test.json
+!/public/data/*.py
+
+/src/data/*

@@ -156,130 +156,17 @@ class FunctionTest extends Component{
     showmapbox = () => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
 
-        var myChart = echarts.init(document.getElementById('bar3d'));
-        // 模拟数据
-        var data0 = [
-            {name:"beijing",value:[116.368608,39.901744,100]},
-            {name:"beijing1",value:[116.378608,39.901744,200]},
-            {name:"beijing2",value:[116.388608,39.901744,400]},
-            ]
-        var data1 = [
-            {name:"beijing",value:[116.339626,39.984877,6000]},
-            {name:"beijing1",value:[116.467312,39.957147,2000]},
-            {name:"beijing2",value:[116.312587,40.059276,8000]},
-            ]
-        
-        myChart.setOption({
-            visualMap: {
-                show: false,
-                calculable: true,
-                realtime: false,
-                inRange: {
-                    color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
-                    // symbolSize: [1000,10000],
-                },
-                outOfRange: {
-                    colorAlpha: 0
-                },
-                // min: 1000,
-                max: 10000,
-            },
-            mapbox3D: {
-                // Mapbox 地图中心经纬度,经纬度用数组表示
-                center: [116.368608,39.901744],
-                // Mapbox 地图的缩放等级
-                zoom: 10,
-                // Mapbox 地图样式
-                style: 'mapbox://styles/mapbox/streets-v8',
-                // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
-                pitch: 50,
-                // Mapbox 地图的旋转角度
-                bearing: -10,
-                
-                // 后处理特效的相关配置，后处理特效可以为画面添加高光，景深，环境光遮蔽（SSAO），调色等效果。可以让整个画面更富有质感。
-                postEffect: {
-                            enable: true,
-                            screenSpaceAmbientOcclusion: {
-                                enable: true,
-                                radius: 1
-                            }
-                        },
-                // 光照相关的设置
-                light: {
-                    main: {
-                        intensity: 2,
-                        shadow: true,
-                        shadowQuality: 'high'
-                    },
-                    ambient: {
-                        intensity: 0.
-                    },
-                    ambientCubemap: {
-                        texture: 'asset/canyon.hdr',
-                        exposure: 2,
-                        diffuseIntensity: 0.5
-                    }
-                },
-            },
-
-            series: [{
-                type: 'bar3D',
-                coordinateSystem: 'mapbox3D',
-                shading: 'lambert',
-                minHeight: 1000,
-                maxHeight: 10000,
-                barSize: 0.3,
-                data: data1,
-                // 图形是否不响应和触发鼠标事件，默认为 false，即响应和触发鼠标事件。
-                silent: true,
-                // label: {show:true},
-                animationEasingUpdate: 200,
-            }]
-        });
-        /*js实现sleep功能 单位：毫秒*/
-        var sleep = function(numberMillis) {
-            var now = new Date();
-            var exitTime = now.getTime() + numberMillis;
-            while (true) {
-                now = new Date();
-                if (now.getTime() > exitTime)
-                    return;
-            }
-        };
-
-        // var loadDataLoop
-        var dataFlagTime = 0
-        var dataChangeWithTime = function () {
-            console.log(dataFlagTime);
-            if (dataFlagTime === 0) {
-                myChart.setOption({
-                    series: [{
-                        data:data1
-                    }]
-                });
-                dataFlagTime = 1;
-            }
-            else{
-                myChart.setOption({
-                    series: [{
-                        data:data0
-                    }]
-                });
-                dataFlagTime = 0;
-            }
-            var loadDataLoop = setTimeout("dataChangeWithTime()", 1000);
-        };
-        // dataChangeWithTime();
-        // 获取mapbox对象
-        var mapbox = myChart.getModel().getComponent('mapbox3D').getMapbox();
-        mapbox.addControl(new mapboxgl.NavigationControl(), 'top-left');
-
-        // window.addEventListener("resize",function(){
-        //     myChart.resize();
-        // });
-
-        
-
+        var map = new mapboxgl.Map({
+            container: 'bar3d', // container id
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-74.5, 40], // starting position
+            zoom: 9 // starting zoom
+            });
+             
+        // Add zoom and rotation controls to the map.
+        map.addControl(new mapboxgl.NavigationControl());
+        // var mapbox = myChart.getModel().getComponent('mapbox3D').getMapbox();
+        // mapbox.addControl(new mapboxgl.NavigationControl(), 'top-left');
     };
 
     render(){
