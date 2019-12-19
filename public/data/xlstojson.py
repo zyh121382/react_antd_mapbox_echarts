@@ -145,12 +145,3 @@ def batchxls2json():
 batchxls2json()
 
 # xls2json(testxls)
-
-
-
-
-
-
-
-
-
