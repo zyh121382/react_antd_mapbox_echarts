@@ -26,7 +26,7 @@ class App extends Component {
           key="sub1"
           title={<span><Icon type="dashboard" /><span>DashBoard</span></span>}
         >
-          <Menu.Item key="3"><Link to="/pageHello">监控页</Link></Menu.Item>
+          <Menu.Item key="3"><Link to="/Heatmap">监控页</Link></Menu.Item>
           <Menu.Item key="4"><Link to="/Analysis">分析页</Link></Menu.Item>
           <Menu.Item key="5"><Link to="/pageTest">测试页</Link></Menu.Item>
         </SubMenu>    

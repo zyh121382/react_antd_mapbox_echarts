@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // eslint-disable-next-line
 import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
-import 'echarts-gl';
+import 'echarts-gl'; 
 import mapboxgl from 'mapbox-gl';
 
 // import { normalize } from 'echarts-gl';

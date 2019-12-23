@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import echarts from 'echarts';
-import 'echarts-gl';
+import 'echarts-gl'; 
 import mapboxgl from 'mapbox-gl';
+
 // eslint-disable-next-line
 import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 // import $ from  'jquery';
@@ -21,6 +22,7 @@ class FunctionTest extends Component{
     }
 
     showEchartTest = () =>{
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
         // Echarts功能测试
         // 初始化
         var myChart = echarts.init(document.getElementById('echartTest'));

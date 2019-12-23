@@ -12,6 +12,7 @@
     "customize-cra": "^0.9.1",
     "echarts": "^4.5.0",
     "echarts-gl": "^1.1.1",
+    "echartslayer": "^0.1.6",
     "jquery": "^3.4.1",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
