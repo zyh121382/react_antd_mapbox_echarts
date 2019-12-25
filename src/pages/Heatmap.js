@@ -1,18 +1,12 @@
 import React, { Component } from 'react';
+// eslint-disable-next-line
+import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
 import 'echarts-gl'; 
 import mapboxgl from 'mapbox-gl';
-
-import 'echartslayer';
-import EchartsLayer from 'echartslayer';
-// eslint-disable-next-line
-import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
-// import $ from  'jquery';
-// require('../lib/EchartsLayer');
+// import 'echartslayer';
 
 
-
-window.mapboxgl = mapboxgl;
 
 class Heatmap extends Component{
     componentDidMount(){
@@ -25,7 +19,7 @@ class Heatmap extends Component{
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
         // Echarts功能测试
         // 初始化
-        
+        var myChart = echarts.init(document.getElementById('mapbox_echartgl'));
         var map = new mapboxgl.Map({
             container: 'echartHeatMap',
             // Mapbox 地图中心经纬度,经纬度用数组表示
@@ -33,6 +27,7 @@ class Heatmap extends Component{
             center: [116.398608,39.901744],
             // Mapbox 地图的缩放等级
             zoom: 10,
+            
             // Mapbox 地图样式
             style: 'mapbox://styles/mapbox/light-v8',
             // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
@@ -68,12 +63,13 @@ class Heatmap extends Component{
             [116.2162954, 39.809537000000006, 1]
         ];
 
-        // 绘制图表
+        // echarts的图表绘制
         var option = {
             animation: true,
-            GLMap: {
-                roam: true
-            },
+            // GLMap: {
+            //     roam: true
+            // },
+            mapbox3D: map,
             // 视觉映射组件 滑动条的那个东西 
             visualMap: {
                 show: false,
@@ -91,8 +87,8 @@ class Heatmap extends Component{
                 }
             },
             series: [{
-                type: 'heatmap',
-                coordinateSystem: 'GLMap',
+                type: 'bar3D',
+                coordinateSystem: 'mapbox3D',
                 // 要加载的数据points
                 data: points,
                 pointSize: 5,
@@ -100,6 +96,7 @@ class Heatmap extends Component{
                 animation: true,
             }],
         };
+        myChart.setOption(option);
 
         // var echartslayer = new EchartsLayer(map);
         // echartslayer.chart.setOption(option);
