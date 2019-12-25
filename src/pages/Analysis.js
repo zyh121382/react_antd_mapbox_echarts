@@ -18,7 +18,7 @@ import mapboxgl from 'mapbox-gl';
  */
 // const dirPath = path.resolve(`${__dirname}`, '../../assets/');
 
-window.mapboxgl = mapboxgl;
+// window.mapboxgl = mapboxgl;
 
 class Analysis extends Component{
 
@@ -167,9 +167,9 @@ class Analysis extends Component{
 
         // 模拟数据
         var data0 = [
-            {name:"beijing",value:[116.368608,39.901744,100]},
-            {name:"beijing1",value:[116.378608,39.901744,200]},
-            {name:"beijing2",value:[116.388608,39.901744,400]},
+            {name:"beijing",value:[116.368608,39.901744,150]},
+            {name:"beijing1",value:[116.378608,39.901744,350]},
+            {name:"beijing2",value:[116.388608,39.901744,500]},
             ]
         var data1 = [
             [116.339626,39.984877,6000],
@@ -325,6 +325,7 @@ class Analysis extends Component{
         // echarts初始化
         var myChart = echarts.init(document.getElementById('point_analysis'));
         var option = {
+            animation: false,
             title: {
                 text: '中关村东路拥堵演变情况',
                 left:'center', //标题居中
