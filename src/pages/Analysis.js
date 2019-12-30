@@ -19,13 +19,14 @@ import mapboxgl from 'mapbox-gl';
 // const dirPath = path.resolve(`${__dirname}`, '../../assets/');
 
 // window.mapboxgl = mapboxgl;
+var zoomeLevel = 11;
 
 class Analysis extends Component{
 
-
+    
     componentDidMount(){
         // this.loaddata();
-        this.fetchJson("./data/2019_04_02_all_data-json/jsonNameList.json")
+        this.fetchJson("./data/2019_04_02_all_data-json/jsonNameList79.json")
         this.showmapbox();
         // this.showlinebar();
         // this.showjamlevel();
@@ -33,8 +34,9 @@ class Analysis extends Component{
 
     fetchJson = (jsonNameFilePath = "./data/testdir/jsonName.json") => {
 
+        var jsonName = jsonNameFilePath.split('/').slice(-1)[0]
         this.jsonNameFilePath = jsonNameFilePath
-        this.datalist = require('../data/jsonNameList.json').namelist;
+        this.datalist = require('../data/'+jsonName).namelist;
         // var dataJson
         // fetch 只能获取 public下的文件
         // this.jsonFilePath = jsonNameFilePath
@@ -65,28 +67,33 @@ class Analysis extends Component{
         .then(res => res.json())
         .then(json => {
             var data = json.data
-            for(var i = 0, len = data.length; i < len; i++){
+            // var hide_data = 0
+            for(var i = 0, len = data.length; i < len; i+=1){
                 // data[i][2] *= 5000;
                 // 数据归一化
                 // data[i][2] = normalize(data[i][2], 1, 9, 1, 500)
                 
                 // 数据映射 1->1 3->150 7-350 10->500
-                // switch(data[i][2]){
-                //     case 3:
-                //         data[i][2] = 150;
-                //         break;
-                //     case 7:
-                //         data[i][2] = 350;
-                //         break;
-                //     case 10:
-                //         data[i][2] = 500;
-                //         break;
-                //     default:
-                //         break;
-                // }
-                if(data[i][2]>1){
-                    data[i][2] *= 50;
+                switch(data[i][2]){
+                    case 3:
+                        data[i][2] = 150;
+                        // console.log(hide_data)
+                        // if(i%5 === 0){
+                        //     data[i][2] = 150;
+                        // }
+                        break;
+                    case 7:
+                        data[i][2] = 200;
+                        break;
+                    case 10:
+                        data[i][2] = 250;
+                        break;
+                    default:
+                        break;
                 }
+                // if(data[i][2]>1){
+                //     data[i][2] *= 50;
+                // }
             
             }
             // console.log('load json path:'+jsonPath);
@@ -94,6 +101,11 @@ class Analysis extends Component{
             // console.log('load json data time:'+datatime);
             // this.showmapbox(data,datatime);
 
+            // zoomeLevel = zoomeLevel.toFixed(2);
+            console.log("此时的zoom"+zoomeLevel)
+             
+            var barSize = (2**(zoomeLevel.toFixed(1)-11))*0.1
+            console.log(barSize)
             this.myChartGl.setOption({
                 title: { 
                     subtext: datatime, //"2019-12-13 14:00", //主标题的副标题文本内容，如果需要副标题就配置这一项
@@ -102,12 +114,13 @@ class Analysis extends Component{
                     type: 'bar3D',
                     coordinateSystem: 'mapbox3D',
                     shading: 'color',
-                    bevelSize: 0.3, //柱子倒角
+                    // bevelSize: 0.3, //柱子倒角
                     // bevelSmoothness: 2, //柱子倒角的光滑/圆润度，数值越大越光滑/圆润。
-                    barSize: 0.1,
+                    // barSize: 0.1,
+                    barSize: barSize,
                     data: data,
                     // 图形是否不响应和触发鼠标事件，默认为 false，即响应和触发鼠标事件。
-                    silent: true,
+                    silent: true, //设置为true 大大优化响应时间
                 }]
 
             });
@@ -115,7 +128,7 @@ class Analysis extends Component{
     };
 
     // 数据轮播
-    data_change = (lunbo_flag, time_space = 1000, jsonNameFilePath = this.jsonNameFilePath, data = this.datalist) => {
+    data_change = (lunbo_flag, time_space = 1000, Interval_num = 1,jsonNameFilePath = this.jsonNameFilePath, data = this.datalist) => {
         // lunbo_flag 轮播启停标志 1代表运行 -1代表停止 
         // time_space 轮播时间间隔
         // jsonNameFilePath 轮播数据的jsonlist文件路径
@@ -132,7 +145,7 @@ class Analysis extends Component{
                     var jsonPath = jsonNameFilePath.split('jsonName')[0]+data[this.lunbo_i]
                     this.loaddata(jsonPath)
                     console.log(jsonPath)
-                    this.lunbo_i += 1 
+                    this.lunbo_i += Interval_num // 每次播放的数据间隔 
                 }
                 else{
                     this.lunbo_i = 0
@@ -152,12 +165,12 @@ class Analysis extends Component{
             this.lunbo = true
             if(!this.lunbo_i)
                 this.lunbo_i = 0
-            this.data_change(1, 300)
+            this.data_change(1, 200, 1)
         }
         else{
             this.lunbo = false
-            this.data_change(-1, 300)
-        }
+            this.data_change(-1, 200, 1)
+        } 
     };
 
     showmapbox = (data=[],datatime="") => {
@@ -165,18 +178,21 @@ class Analysis extends Component{
         
         this.myChartGl = echarts.init(document.getElementById('mapbox_echartgl'));
 
+        zoomeLevel = 11
+        var barSize = (2**(zoomeLevel-11))*0.1
+        console.log(barSize)
         // 模拟数据
-        var data0 = [
-            {name:"beijing",value:[116.368608,39.901744,150]},
-            {name:"beijing1",value:[116.378608,39.901744,350]},
-            {name:"beijing2",value:[116.388608,39.901744,500]},
-            ]
-        var data1 = [
-            [116.339626,39.984877,6000],
-            [116.467312,39.957147,2000],
-            [116.312587,40.059276,8000],
-            [116.342587,40.059276,8000],
-            ]
+        // var data0 = [
+        //     {name:"beijing",value:[116.368608,39.901744,150]},
+        //     {name:"beijing1",value:[116.378608,39.901744,350]},
+        //     {name:"beijing2",value:[116.388608,39.901744,500]},
+        //     ]
+        // var data1 = [
+        //     [116.339626,39.984877,6000],
+        //     [116.467312,39.957147,2000],
+        //     [116.312587,40.059276,8000],
+        //     [116.342587,40.059276,8000],
+        //     ]
         
         this.myChartGl.setOption({
             title: { 
@@ -225,9 +241,9 @@ class Analysis extends Component{
                     // {min: 1, max: 200, label: '通畅', color: 'green'},
                     // {min: 100, max: 200},
                     // {min: 100, max: 350, label: '0 到 1000（自定义label）'}, 
-                    {value: 150, label: '通畅', color: 'green'}, // 表示value等于150的情况。
-                    {value: 350, label: '缓行', color: '#ff7315'},
-                    {value: 500, label: '拥堵', color: 'red'},
+                    {value: 150, label: '通畅', color: '#369674'}, // 表示value等于150的情况。
+                    {value: 200, label: '缓行', color: '#feb64d'},
+                    {value: 250, label: '拥堵', color: 'red'},
                 ],
                 min: 100,
                 max: 500,
@@ -235,24 +251,24 @@ class Analysis extends Component{
             mapbox3D: {
                 // Mapbox 地图中心经纬度,经纬度用数组表示
                 // center: [116.368608,39.901744],
-                center: [116.388608,39.881744],
+                center: [116.420608,39.851744],
                 // Mapbox 地图的缩放等级
                 zoom: 11,
                 // Mapbox 地图样式
-                style: 'mapbox://styles/mapbox/light-v8',
+                style: 'mapbox://styles/mapbox/outdoors-v11',
                 // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
-                pitch: 50,
+                pitch: 60,
                 // Mapbox 地图的旋转角度
-                bearing: -10,
+                bearing: -30,
                 
                 // 后处理特效的相关配置，后处理特效可以为画面添加高光，景深，环境光遮蔽（SSAO），调色等效果。可以让整个画面更富有质感。
-                postEffect: {
-                            enable: true,
-                            screenSpaceAmbientOcclusion: {
-                                enable: true,
-                                radius: 1
-                            }
-                        },
+                // postEffect: {
+                //             enable: true,
+                //             screenSpaceAmbientOcclusion: {
+                //                 enable: true,
+                //                 radius: 1
+                //             }
+                //         },
                 // 光照相关的设置
                 // light: {
                 //     main: {
@@ -275,16 +291,17 @@ class Analysis extends Component{
                 type: 'bar3D',
                 coordinateSystem: 'mapbox3D',
                 shading: 'color',
-                bevelSize: 0.3, //柱子倒角
+                // bevelSize: 0.3, //柱子倒角
                 // bevelSmoothness: 2, //柱子倒角的光滑/圆润度，数值越大越光滑/圆润。
                 minHeight: 1,
                 maxHeight: 500,
-                barSize: 0.1,
+                // barSize: 0.1,
+                barSize: barSize,
                 data: data,
                 // 图形是否不响应和触发鼠标事件，默认为 false，即响应和触发鼠标事件。
-                silent: true,
+                silent: true, //设置为true 大大优化响应时间
                 // label: {show:true},
-                animationEasingUpdate: 200,
+                // animationEasingUpdate: 200,
             }]
         });
         // 获取mapbox对象
@@ -300,12 +317,43 @@ class Analysis extends Component{
             // container: document.querySelector('mapbox_echartgl')
         });
         mapbox.addControl(this.nav, 'top-right');
-        mapbox.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
-        // mapbox.on('zoom',function(){ 
-        //     this.lunbo = false;
-        //     this.data_change(-1,300);
-        // });
+        mapbox.setMinZoom(10);
+        mapbox.setMaxZoom(14);
+        
+
+        mapbox.on('load', function() {
+            console.log("地图加载")
+        });
+
+        mapbox.on('mousedown', function() {
+            // zoomeLevel = mapbox.getZoom()
+            console.log("鼠标点击开始")
+            if(this.button_flag){
+                this.load_multi_data()
+                console.log("停止轮播")
+            }
+        });
+
+        mapbox.on('mouseup', function() {
+            // zoomeLevel = mapbox.getZoom()
+            console.log("鼠标点击结束")
+            if(this.button_flag){
+                this.load_multi_data()
+                console.log("重启轮播")
+            }
+        });
+
+        mapbox.on('zoomstart', function() {
+            zoomeLevel = mapbox.getZoom()
+            // console.log("zoom变化开始" + zoomeLevel)
+        });
+
+        mapbox.on('zoomend', function() {
+            zoomeLevel = mapbox.getZoom()
+            // console.log("zoom变化结束" + zoomeLevel)
+
+        });
     };
     showlinebar = (data) => {
 
@@ -458,7 +506,7 @@ class Analysis extends Component{
                                     this.loaddata("./data/2019-04-02_09-00.json")
                                 }}>测试数据</Button>,
                                 <Button key="2" type="primary" onClick={() => {
-                                    this.load_multi_data()
+                                    this.load_multi_data();this.button_flag = 1;
                                 }}>数据轮播</Button>,
                                 <Button key="3" 
                                     onClick={() => {

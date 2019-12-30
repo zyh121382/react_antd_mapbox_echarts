@@ -11,7 +11,7 @@ import mapboxgl from 'mapbox-gl';
 class Heatmap extends Component{
     componentDidMount(){
         
-        this.showEchartHeatMap(); 
+        // this.showEchartHeatMap(); 
         this.showBmap(); 
     }
 
