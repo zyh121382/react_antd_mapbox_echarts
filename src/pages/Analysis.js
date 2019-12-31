@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
 import 'echarts-gl'; 
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { setRTLTextPlugin } from 'mapbox-gl';
 
 // import { normalize } from 'echarts-gl';
 // import $ from  'jquery';
@@ -165,11 +165,11 @@ class Analysis extends Component{
             this.lunbo = true
             if(!this.lunbo_i)
                 this.lunbo_i = 0
-            this.data_change(1, 200, 1)
+            this.data_change(1, 200, 3)
         }
         else{
             this.lunbo = false
-            this.data_change(-1, 200, 1)
+            this.data_change(-1, 200, 3)
         } 
     };
 
@@ -355,6 +355,36 @@ class Analysis extends Component{
 
         });
     };
+
+    // mapbox的自动动态展示
+    show_play = () => {
+        if(this.button_flag === 1){
+            this.load_multi_data();
+        }
+        // 获取mapbox对象
+        var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
+        console.log("start show")
+        mapbox.flyTo({
+            center: [116.420608,39.851744],
+            // Mapbox 地图的缩放等级
+            zoom: 11,
+            // Mapbox 地图样式
+            style: 'mapbox://styles/mapbox/outdoors-v11',
+            // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
+            pitch: 60,
+            // Mapbox 地图的旋转角度
+            bearing: -30,
+            speed: 0.2,
+            curve: 1,
+            easing(t) {
+              return t;
+            }
+        });
+
+
+
+        
+    };
     showlinebar = (data) => {
 
         // 模拟数据
@@ -508,7 +538,11 @@ class Analysis extends Component{
                                 <Button key="2" type="primary" onClick={() => {
                                     this.load_multi_data();this.button_flag = 1;
                                 }}>数据轮播</Button>,
-                                <Button key="3" 
+                                <Button key="3" type="primary" onClick={() => {
+                                    this.show_play();
+                                    
+                                }}>动态演示</Button>,
+                                <Button key="4" 
                                     onClick={() => {
                                         clearInterval(this.settimer); 
                                         this.lunbo = -1; 
