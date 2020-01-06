@@ -20,6 +20,7 @@ import mapboxgl, { setRTLTextPlugin } from 'mapbox-gl';
 
 // window.mapboxgl = mapboxgl;
 var zoomeLevel = 11;
+var stage = 0;
 
 class Analysis extends Component{
 
@@ -83,10 +84,10 @@ class Analysis extends Component{
                         // }
                         break;
                     case 7:
-                        data[i][2] = 200;
+                        data[i][2] = 175;
                         break;
                     case 10:
-                        data[i][2] = 250;
+                        data[i][2] = 200;
                         break;
                     default:
                         break;
@@ -104,7 +105,7 @@ class Analysis extends Component{
             // zoomeLevel = zoomeLevel.toFixed(2);
             console.log("此时的zoom"+zoomeLevel)
              
-            var barSize = (2**(zoomeLevel.toFixed(1)-11))*0.1
+            var barSize = (2**(zoomeLevel.toFixed(1)-11))*0.08
             console.log(barSize)
             this.myChartGl.setOption({
                 title: { 
@@ -134,6 +135,7 @@ class Analysis extends Component{
         // jsonNameFilePath 轮播数据的jsonlist文件路径
         // data 要轮播的数据
         // data_index 轮播的数据索引
+
         if(lunbo_flag === -1){
             console.log("lunbo stop")
             clearInterval(this.settimer)
@@ -146,11 +148,14 @@ class Analysis extends Component{
                     this.loaddata(jsonPath)
                     console.log(jsonPath)
                     this.lunbo_i += Interval_num // 每次播放的数据间隔 
+                    
                 }
                 else{
                     this.lunbo_i = 0
                 }
+                
             }, time_space);
+            // this.show_play()
         };
     };
 
@@ -165,11 +170,11 @@ class Analysis extends Component{
             this.lunbo = true
             if(!this.lunbo_i)
                 this.lunbo_i = 0
-            this.data_change(1, 200, 3)
+            this.data_change(1, 300, 2)
         }
         else{
             this.lunbo = false
-            this.data_change(-1, 200, 3)
+            this.data_change(-1, 300, 2)
         } 
     };
 
@@ -179,7 +184,7 @@ class Analysis extends Component{
         this.myChartGl = echarts.init(document.getElementById('mapbox_echartgl'));
 
         zoomeLevel = 11
-        var barSize = (2**(zoomeLevel-11))*0.1
+        var barSize = (2**(zoomeLevel-11))*0.08
         console.log(barSize)
         // 模拟数据
         // var data0 = [
@@ -242,24 +247,24 @@ class Analysis extends Component{
                     // {min: 100, max: 200},
                     // {min: 100, max: 350, label: '0 到 1000（自定义label）'}, 
                     {value: 150, label: '通畅', color: '#369674'}, // 表示value等于150的情况。
-                    {value: 200, label: '缓行', color: '#feb64d'},
-                    {value: 250, label: '拥堵', color: 'red'},
+                    {value: 175, label: '缓行', color: '#feb64d'},
+                    {value: 200, label: '拥堵', color: 'red'},
                 ],
                 min: 100,
                 max: 500,
             },
             mapbox3D: {
                 // Mapbox 地图中心经纬度,经纬度用数组表示
-                // center: [116.368608,39.901744],
-                center: [116.420608,39.851744],
+                center: [116.368608,39.901744],
+                // center: [116.420608,39.851744],
                 // Mapbox 地图的缩放等级
-                zoom: 11,
+                zoom: 10,
                 // Mapbox 地图样式
                 style: 'mapbox://styles/mapbox/outdoors-v11',
                 // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
-                pitch: 60,
+                // pitch: 60,
                 // Mapbox 地图的旋转角度
-                bearing: -30,
+                // bearing: -30,
                 
                 // 后处理特效的相关配置，后处理特效可以为画面添加高光，景深，环境光遮蔽（SSAO），调色等效果。可以让整个画面更富有质感。
                 // postEffect: {
@@ -358,33 +363,92 @@ class Analysis extends Component{
 
     // mapbox的自动动态展示
     show_play = () => {
-        if(this.button_flag === 1){
-            this.load_multi_data();
-        }
-        // 获取mapbox对象
+        
         var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
-        console.log("start show")
+        
+        var bearing = mapbox.getBearing()
+        if(stage === 0){
+            if(bearing > -30){
+                this.move_fly(mapbox, 116.420608,39.831744,11,60,-30,0.1);
+            }
+            else{
+                stage = 1
+            }
+        }
+        else if(stage === 1){
+            if(bearing <= -30 && bearing > -120){
+                this.move_fly(mapbox, 116.440608,39.981744,11,60,-120,0.1);
+            }
+            else{
+                stage = 2
+            }
+        }
+        else if(stage === 2){
+            if(bearing <= -120 && bearing > -210){
+                this.move_fly(mapbox, 116.330608,40.001744,11,60,-210,0.1);
+            }
+            else{
+                stage = 3
+            }
+        }
+        else if(stage === 3){
+            if(bearing <= -210 && bearing > -300){
+                this.move_fly(mapbox, 116.270608,39.881744,11,60,-300,0.1);
+            }
+            else{
+                stage = 4
+            }
+        }
+        else if(stage === 4){
+            if(bearing <= -300 && bearing > -30){
+                this.move_fly(mapbox, 116.420608,39.831744,11,60,-30,0.1);
+            }
+            else{
+                stage = 0
+            }
+        }
+        else{
+            stage = 0
+            this.move_fly(mapbox, 116.368608,39.901744,10,0,0,0.1);
+        }
+    };
+
+    show_play_static = () => {
+        
+        var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
+        
+        this.move_fly(mapbox, 116.420608,39.831744,11,60,-30,0.1);
+        setTimeout(this.move_fly, 2800, mapbox, 116.440608,39.981744,11,60,-120,0.1);
+        setTimeout(this.move_fly, 5800, mapbox, 116.330608,40.001744,11,60,-210,0.1);
+        setTimeout(this.move_fly, 8800, mapbox, 116.270608,39.881744,11,60,-300,0.1);
+        setTimeout(this.move_fly, 11800, mapbox, 116.420608,39.831744,11,60,-30,0.1); 
+    };
+
+    move_fly = (mapbox,lon,lat,zoom=11,pitch,bearing,speed) => {
         mapbox.flyTo({
-            center: [116.420608,39.851744],
+            // center: [116.420608,39.851744],
+            center: [lon,lat],
             // Mapbox 地图的缩放等级
-            zoom: 11,
-            // Mapbox 地图样式
-            style: 'mapbox://styles/mapbox/outdoors-v11',
+            // zoom: 11,
+            zoom: zoom,
             // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
-            pitch: 60,
+            // pitch: 60,
+            pitch: pitch,
             // Mapbox 地图的旋转角度
-            bearing: -30,
-            speed: 0.2,
+            // bearing: -30,
+            bearing: bearing,
+            duration:4000,
+            // speed: 0.2,
+            speed: speed,
             curve: 1,
             easing(t) {
               return t;
             }
         });
-
-
-
-        
+        // return move_rotate();
     };
+    
+    
     showlinebar = (data) => {
 
         // 模拟数据
@@ -533,20 +597,45 @@ class Analysis extends Component{
                             subTitle="交通数据分析"
                             extra={[
                                 <Button key="1" type="primary" onClick={() => {
-                                    this.loaddata("./data/2019-04-02_09-00.json")
+                                    this.loaddata("./data/2019-04-02_09-00.json");
+                                    // setTimeout(this.show_play,1000);
+                                    // this.show_play();
                                 }}>测试数据</Button>,
                                 <Button key="2" type="primary" onClick={() => {
-                                    this.load_multi_data();this.button_flag = 1;
+                                    // var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
+                                    // if(this.button_flag !== 1){
+                                    //     // this.move_fly(mapbox,116.420608,39.831744,12,60,-30,0.5);
+                                    //     this.move_fly(mapbox,116.420608,39.851744,11.5,60,-30,0.5);
+                                        
+                                    //     setTimeout( this.move_fly,2000,mapbox,116.368163,40.001514,14,60,-45,0.2);
+                                    //     // this.show_play();
+                                    //     setTimeout(this.load_multi_data,5500);
+                                    // }
+                                    // else{
+                                    //     this.load_multi_data()
+                                    // }
+                                    this.load_multi_data();
+                                    this.button_flag = 1;
                                 }}>数据轮播</Button>,
                                 <Button key="3" type="primary" onClick={() => {
-                                    this.show_play();
+                                    this.show_play_static();
                                     
-                                }}>动态演示</Button>,
+                                }}>单数据动态演示</Button>,
+                                <Button key="5" type="primary" onClick={() => {
+                                    var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
+                                    this.move_fly(mapbox,116.360163,40.001514,14,60,-45,0.2);
+                                    
+                                }}>局部演示</Button>,
+                                <Button key="6" type="primary" onClick={() => {
+                                    var mapbox = this.myChartGl.getModel().getComponent('mapbox3D').getMapbox();
+                                    this.move_fly(mapbox,116.420608,39.851744,11.5,60,-30,0.5);
+                                }}>全局演示</Button>,
                                 <Button key="4" 
                                     onClick={() => {
                                         clearInterval(this.settimer); 
                                         this.lunbo = -1; 
                                         this.lunbo_i = 0
+                                        this.button_flag = 0;
                                         this.myChartGl.clear(); 
                                         this.showmapbox();    
                                     }
@@ -558,7 +647,7 @@ class Analysis extends Component{
                 </Row>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
-                        <div id="mapbox_echartgl" style={{minWidth: 400, minHeight: 600}}></div>
+                        <div id="mapbox_echartgl" style={{minWidth: 500, minHeight: 600}}></div>
                     </Col>
                 </Row>
                 {/* <Row gutter={[16, 16]}>
