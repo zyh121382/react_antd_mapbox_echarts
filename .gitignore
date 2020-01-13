@@ -29,7 +29,7 @@ yarn-error.log*
 # !/public/data/data/test.json
 /public/data/__pycache__
 
-!/public/data/test.json
+# !/public/data/test.json
 !/public/data/*.py
 
 /src/data/*

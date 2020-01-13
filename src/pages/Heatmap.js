@@ -2,41 +2,39 @@ import React, { Component } from 'react';
 // eslint-disable-next-line
 import { Row, Col, Button, PageHeader, Descriptions } from 'antd';
 import echarts from 'echarts';
-import 'echarts-gl'; 
+import 'echarts-gl';
 import mapboxgl from 'mapbox-gl';
 // import 'echartslayer';
 
 
 
-class Heatmap extends Component{
-    componentDidMount(){
-        
-        // this.showEchartHeatMap(); 
-        this.showBmap(); 
+class Heatmap extends Component {
+    componentDidMount() {
+
+        this.showEchartHeatMap();
+        // this.showBmap(); 
     }
 
-    showEchartHeatMap = () =>{
+    showEchartHeatMap = () => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVzdDEyIiwiYSI6ImNrM3BpbDhsYTAzbDgzY3J2OXBzdXFuNDMifQ.bDD9-o_SB4fR0UXzYLy9gg';
         // Echarts功能测试
         // 初始化
-        var myChart = echarts.init(document.getElementById('mapbox_echartgl'));
+
         var map = new mapboxgl.Map({
             container: 'echartHeatMap',
             // Mapbox 地图中心经纬度,经纬度用数组表示
-            // center: [116.368608,39.901744],
-            center: [116.398608,39.901744],
+            center: [116.368608,39.901744],
             // Mapbox 地图的缩放等级
             zoom: 10,
-            
             // Mapbox 地图样式
-            style: 'mapbox://styles/mapbox/light-v8',
+            style: 'mapbox://styles/mapbox/outdoors-v11',
             // 视角俯视的倾斜角度,默认为0，也就是正对着地图。最大60。
             pitch: 0,
             // Mapbox 地图的旋转角度
             bearing: 0,
         });
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-        
+
         // 模拟数据
         var points = [
             [116.4226486, 40.0028658, 1],
@@ -63,41 +61,145 @@ class Heatmap extends Component{
             [116.2162954, 39.809537000000006, 1]
         ];
 
-        // echarts的图表绘制
-        var option = {
-            animation: true,
-            // GLMap: {
-            //     roam: true
-            // },
-            mapbox3D: map,
-            // 视觉映射组件 滑动条的那个东西 
-            visualMap: {
-                show: false,
-                top: 'top',
-                min: 0,
-                max: 5,
-                seriesIndex: 0,
-                calculable: true,
-                inRange: {
-                color: ['blue', 'blue', 'green', 'yellow', 'red'],
-                // color: ["#ffffff", "#4FD17D", "#FFD145", "#E80C0C", "#B50000"],
-                // color: ["#a3a3ff","#18ffdf","#47ff00","#ffdc00","#ff2000"],
-                // color: ["#a3a3ff","#4FD17D", "#FFD145", "#ffdc00","#ff2000"],
-                opacity: 0.6
-                }
-            },
-            series: [{
-                type: 'bar3D',
-                coordinateSystem: 'mapbox3D',
-                // 要加载的数据points
-                data: points,
-                pointSize: 5,
-                blurSize: 6,
-                animation: true,
-            }],
-        };
-        myChart.setOption(option);
+        map.on('load', function () {
+            // Add a geojson point source.
+            // Heatmap layers also work with a vector tile source.
+            map.addSource('earthquakes', {
+                'type': 'geojson',
+                'data': 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson'
+            });
 
+            map.addLayer(
+                {
+                    'id': 'earthquakes-heat',
+                    'type': 'heatmap',
+                    'source': 'earthquakes',
+                    
+                    'maxzoom': 9,
+                    'paint': {
+                        // Increase the heatmap weight based on frequency and property magnitude
+                        'heatmap-weight': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'mag'],
+                            0,
+                            0,
+                            6,
+                            1
+                        ],
+                        // Increase the heatmap color weight weight by zoom level
+                        // heatmap-intensity is a multiplier on top of heatmap-weight
+                        'heatmap-intensity': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            0,
+                            1,
+                            9,
+                            3
+                        ],
+                        // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                        // Begin color ramp at 0-stop with a 0-transparancy color
+                        // to create a blur-like effect.
+                        'heatmap-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['heatmap-density'],
+                            0,
+                            'rgba(33,102,172,0)',
+                            0.2,
+                            'rgb(103,169,207)',
+                            0.4,
+                            'rgb(209,229,240)',
+                            0.6,
+                            'rgb(253,219,199)',
+                            0.8,
+                            'rgb(239,138,98)',
+                            1,
+                            'rgb(178,24,43)'
+                        ],
+                        // Adjust the heatmap radius by zoom level
+                        'heatmap-radius': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            0,
+                            2,
+                            9,
+                            20
+                        ],
+                        // Transition from heatmap to circle layer by zoom level
+                        'heatmap-opacity': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            7,
+                            1,
+                            9,
+                            0
+                        ]
+                    }
+                },
+                'waterway-label'
+            );
+
+            // map.addLayer(
+            //     {
+            //         'id': 'earthquakes-point',
+            //         'type': 'circle',
+            //         'source': 'earthquakes',
+            //         'minzoom': 7,
+            //         'paint': {
+            //             // Size circle radius by earthquake magnitude and zoom level
+            //             'circle-radius': [
+            //                 'interpolate',
+            //                 ['linear'],
+            //                 ['zoom'],
+            //                 7,
+            //                 ['interpolate', ['linear'], ['get', 'mag'], 1, 1, 6, 4],
+            //                 16,
+            //                 ['interpolate', ['linear'], ['get', 'mag'], 1, 5, 6, 50]
+            //             ],
+            //             // Color circle by earthquake magnitude
+            //             'circle-color': [
+            //                 'interpolate',
+            //                 ['linear'],
+            //                 ['get', 'mag'],
+            //                 1,
+            //                 'rgba(33,102,172,0)',
+            //                 2,
+            //                 'rgb(103,169,207)',
+            //                 3,
+            //                 'rgb(209,229,240)',
+            //                 4,
+            //                 'rgb(253,219,199)',
+            //                 5,
+            //                 'rgb(239,138,98)',
+            //                 6,
+            //                 'rgb(178,24,43)'
+            //             ],
+            //             'circle-stroke-color': 'white',
+            //             'circle-stroke-width': 1,
+            //             // Transition from heatmap to circle layer by zoom level
+            //             'circle-opacity': [
+            //                 'interpolate',
+            //                 ['linear'],
+            //                 ['zoom'],
+            //                 7,
+            //                 0,
+            //                 8,
+            //                 1
+            //             ]
+            //         }
+            //     },
+            //     'waterway-label'
+            // );
+        });
+
+        map.on('zoomend', function() {
+            var zoomeLevel = map.getZoom().toFixed(2)
+            console.log("zoom变化结束" + zoomeLevel)
+        });
         // var echartslayer = new EchartsLayer(map);
         // echartslayer.chart.setOption(option);
 
@@ -117,7 +219,7 @@ class Heatmap extends Component{
 
     };
 
-    render(){
+    render() {
         return (
             <div>
                 <div>
@@ -128,8 +230,8 @@ class Heatmap extends Component{
                         subTitle="交通数据分析图表测试"
                     />
                 </div>
-                <div id="echartHeatMap" style={{minWidth: 600, minHeight: 500}}></div>
-                <div id="bmapTest" style={{minWidth: 600, minHeight: 500}}></div>
+                <div id="echartHeatMap" style={{ minWidth: 500, minHeight: 600 }}></div>
+                {/* <div id="bmapTest" style={{minWidth: 600, minHeight: 500}}></div> */}
             </div>
 
         );
