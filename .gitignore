@@ -23,13 +23,15 @@ yarn-debug.log*
 yarn-error.log*
 
 # 不向git传数据
+# 主要是根目录的data和public/data下的文件数据（文件太大，不适合github存）
 /data
 
 /public/data/*
 # !/public/data/data/test.json
 /public/data/__pycache__
 
-# !/public/data/test.json
+!/public/data/test.json
+!/public/data/test1.json
 !/public/data/*.py
 
 /src/data/*
