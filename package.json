@@ -12,7 +12,7 @@
     "customize-cra": "^0.9.1",
     "echarts": "^4.5.0",
     "echarts-gl": "^1.1.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
     "mapbox-gl": "^1.6.0",
