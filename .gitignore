@@ -34,4 +34,4 @@ yarn-error.log*
 !/public/data/test1.json
 !/public/data/*.py
 
-/src/data/*
+# /src/data/*
